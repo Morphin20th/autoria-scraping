@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\"'" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  scraper:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    restart: "no"
+    command: ["python", "src/parse.py"]
+
+volumes:
+  - pgdata:
