@@ -1,40 +1,45 @@
+import asyncio
 import re
 
 from bs4 import BeautifulSoup
 
 from .base import BaseScraper
+from src.model import Car
+from src.logger import logger
 
 
 class CarScraper(BaseScraper):
-    async def get_car_data(self, url: str) -> dict:
-        html = await self.fetch(url)
-        soup = BeautifulSoup(html, "html.parser")
+    async def get_car_data(self, url: str, semaphore: asyncio.Semaphore) -> Car:
+        async with semaphore:
+            html = await self.fetch(url)
+            soup = BeautifulSoup(html, "html.parser")
 
-        def get_safe_text(selector: str) -> str | None:
-            el = soup.select_one(selector)
-            return el.get_text(strip=True) if el else None
+            def get_safe_text(selector: str) -> str | None:
+                el = soup.select_one(selector)
+                return el.get_text(strip=True) if el else None
 
-        img_el = soup.select_one("span.picture img")
-        image_url = ""
-        if img_el:
-            image_url = img_el.get("data-src")
+            img_el = soup.select_one("span.picture img")
+            image_url = ""
+            if img_el:
+                image_url = img_el.get("data-src")
 
-        phone_number = await self.get_phone_number(soup)
+            phone_number = await self.get_phone_number(soup)
 
-        data = dict(
-            url=url,
-            title=get_safe_text("#basicInfoTitle h1"),
-            price_usd=get_safe_text("#basicInfoPrice strong"),
-            odometer=get_safe_text("#basicInfoTableMainInfo0 span"),
-            username=get_safe_text("#sellerInfoUserName span"),
-            image_url=image_url,
-            image_count=int(soup.select_one("span.common-badge span:last-child").text),
-            car_number=get_safe_text("div.car-number span"),
-            car_vin=get_safe_text("#badgesVin span.common-text"),
-            phone_number=phone_number,
-        )
-
-        return data
+            data = dict(
+                url=url,
+                title=get_safe_text("#basicInfoTitle h1"),
+                price_usd=get_safe_text("#basicInfoPrice strong"),
+                odometer=get_safe_text("#basicInfoTableMainInfo0 span"),
+                username=get_safe_text("#sellerInfoUserName span"),
+                image_url=image_url,
+                image_count=int(soup.select_one("span.common-badge span:last-child").text),
+                car_number=get_safe_text("div.car-number span"),
+                car_vin=get_safe_text("#badgesVin span.common-text"),
+                phone_number=phone_number,
+            )
+            car = Car(**data)
+            logger.debug(f"Successfully parsed car: {url}")
+            return car
 
     async def get_phone_number(self, soup: BeautifulSoup) -> str | None:
         payload = self._extract_phone_data(soup)

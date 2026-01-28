@@ -3,6 +3,7 @@ import asyncio
 from bs4 import BeautifulSoup
 
 from .base import BaseScraper
+from src.logger import logger
 
 
 class PageScraper(BaseScraper):
@@ -19,6 +20,7 @@ class PageScraper(BaseScraper):
                     continue
                 links.append(link)
 
+        logger.info(f"Links collected from page {page}: {len(links)}")
         return links
 
     async def get_links(self) -> list[str]:
@@ -28,6 +30,8 @@ class PageScraper(BaseScraper):
         tasks = [self.get_links_from_page(page, semaphore) for page in range(1, 50)]
         results = await asyncio.gather(*tasks, return_exceptions=True)
         all_links = [link for page_links in results for link in page_links]
+
+        logger.info(f"Links collected from all pages: {len(all_links)}")
         return all_links
 
     async def get_max_page(self):
