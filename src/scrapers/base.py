@@ -2,6 +2,7 @@ import asyncio
 
 import aiohttp
 
+from src.logger import logger
 from src.settings import settings
 
 class BaseScraper:
@@ -14,7 +15,7 @@ class BaseScraper:
             await asyncio.sleep(0.2)
             async with self.session.get(url, timeout=20) as response:
                 if response.status == 429:
-                    print("Too many requests, waiting")
+                    logger.info("Too many requests, waiting")
                     await asyncio.sleep(10)
                     return ""
                 response.raise_for_status()
@@ -22,5 +23,5 @@ class BaseScraper:
                 return content.decode("utf-8", errors="ignore")
 
         except Exception as e:
-            print(f"Error occurred during {url}: {e}")
+            logger.error(f"Error occurred during {url}: {e}")
             return ""

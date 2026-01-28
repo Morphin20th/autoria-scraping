@@ -23,7 +23,7 @@ class AppSettings(BaseSettings):
     def database_url(self) -> str:
         return str(
             PostgresDsn.build(
-                scheme="postgresql+asyncpg",
+                scheme="postgresql",
                 path=self.POSTGRES_DB,
                 username=self.POSTGRES_USER,
                 password=self.POSTGRES_PASSWORD,

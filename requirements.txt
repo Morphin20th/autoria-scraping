@@ -10,6 +10,7 @@ mccabe==0.7.0
 multidict==6.7.1
 propcache==0.4.1
 psycopg==3.3.2
+psycopg-binary==3.3.2
 pycodestyle==2.14.0
 pydantic==2.12.5
 pydantic-settings==2.12.0

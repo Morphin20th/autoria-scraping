@@ -6,6 +6,7 @@ services:
       - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./db/init_table.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     healthcheck:
@@ -25,4 +26,4 @@ services:
     command: ["python", "src/parse.py"]
 
 volumes:
-  - pgdata:
+  pgdata:
