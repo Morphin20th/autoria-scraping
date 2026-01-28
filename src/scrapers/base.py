@@ -5,6 +5,7 @@ import aiohttp
 from src.logger import logger
 from src.settings import settings
 
+
 class BaseScraper:
     def __init__(self, session: aiohttp.ClientSession):
         self.session = session

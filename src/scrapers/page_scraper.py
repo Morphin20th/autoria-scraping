@@ -7,7 +7,9 @@ from src.logger import logger
 
 
 class PageScraper(BaseScraper):
-    async def get_links_from_page(self, page: int, semaphore: asyncio.Semaphore) -> list[str]:
+    async def get_links_from_page(
+        self, page: int, semaphore: asyncio.Semaphore
+    ) -> list[str]:
         url = f"{self.base_url}?{page=}"
         async with semaphore:
             html = await self.fetch(url)
@@ -27,7 +29,7 @@ class PageScraper(BaseScraper):
         max_page = await self.get_max_page()
         semaphore = asyncio.Semaphore(5)
 
-        tasks = [self.get_links_from_page(page, semaphore) for page in range(1, 50)]
+        tasks = [self.get_links_from_page(page, semaphore) for page in range(1, max_page + 1)]
         results = await asyncio.gather(*tasks, return_exceptions=True)
         all_links = [link for page_links in results for link in page_links]
 
@@ -40,4 +42,4 @@ class PageScraper(BaseScraper):
         soup = BeautifulSoup(html, "html.parser")
 
         max_page = soup.select_one("span.page-item.dhide.text-c").text
-        return int(max_page.replace(" ","").split("/")[-1])
+        return int(max_page.replace(" ", "").split("/")[-1])

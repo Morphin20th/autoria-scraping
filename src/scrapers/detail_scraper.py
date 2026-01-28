@@ -32,7 +32,9 @@ class CarScraper(BaseScraper):
                 odometer=get_safe_text("#basicInfoTableMainInfo0 span"),
                 username=get_safe_text("#sellerInfoUserName span"),
                 image_url=image_url,
-                image_count=int(soup.select_one("span.common-badge span:last-child").text),
+                image_count=int(
+                    soup.select_one("span.common-badge span:last-child").text
+                ),
                 car_number=get_safe_text("div.car-number span"),
                 car_vin=get_safe_text("#badgesVin span.common-text"),
                 phone_number=phone_number,

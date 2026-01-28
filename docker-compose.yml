@@ -22,8 +22,10 @@ services:
         condition: service_healthy
     env_file:
       - .env
-    restart: "no"
+    restart: "always"
     command: ["python", "src/parse.py"]
+    volumes:
+      - ./dumps:/app/dumps
 
 volumes:
   pgdata:

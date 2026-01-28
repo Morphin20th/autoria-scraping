@@ -1,12 +1,11 @@
 import logging
+import sys
 
 
-def setup_logger() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(levelname)s\t| %(message)s\t| %(asctime)s",
-        handlers=[logging.StreamHandler()],
-    )
-
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s|\t%(message)s\t| %(asctime)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
 
 logger = logging.getLogger("autoria-scrape")
