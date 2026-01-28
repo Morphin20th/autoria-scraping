@@ -7,7 +7,7 @@ class Car(BaseModel):
     price_usd: int
     odometer: int
     username: str
-    phone_number: int
+    phone_number: str
     image_url: str
     image_count: int
     car_number: str | None
@@ -21,10 +21,10 @@ class Car(BaseModel):
 
     @field_validator("phone_number", mode="before")
     @classmethod
-    def parse_phone_number(cls, value: str) -> int:
+    def parse_phone_number(cls, value: str) -> str:
         value = value.replace("(", "").replace(")", "").replace(" ", "")
         value = "38" + value
-        return int(value)
+        return value
 
     @field_validator("price_usd", mode="before")
     @classmethod

@@ -1,34 +1,11 @@
 import re
 
-import aiohttp
 from bs4 import BeautifulSoup
 
-from src.settings import settings
+from .base import BaseScraper
 
 
-class CarScraper:
-    def __init__(self, session: aiohttp.ClientSession) -> None:
-        self.session = session
-        self.base_url = settings.BASE_URL
-
-    async def fetch(self, url: str) -> str:
-        async with self.session.get(url) as response:
-            response.raise_for_status()
-            return await response.text()
-
-    async def get_links(self, url: str) -> list[str]:
-        html = await self.fetch(url)
-        soup = BeautifulSoup(html, "html.parser")
-
-        links = []
-        for a in soup.select("a.address"):
-            link = a.get("href")
-            if "newauto" in link:
-                continue
-            links.append(a.get("href"))
-
-        return links
-
+class CarScraper(BaseScraper):
     async def get_car_data(self, url: str) -> dict:
         html = await self.fetch(url)
         soup = BeautifulSoup(html, "html.parser")
