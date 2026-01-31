@@ -14,11 +14,10 @@ async def get_connection() -> psycopg.AsyncConnection:
 
 
 class DBRepository:
-    def __init__(self, conn: psycopg.AsyncConnection):
-        self.conn = conn
-
-    async def insert_cars(self, cars: list[Car]) -> None:
+    @staticmethod
+    async def insert_cars(cars: list[Car], conn: psycopg.AsyncConnection) -> None:
         if not cars:
+            logger.warning("No cars to insert to database")
             return
 
         query = """
@@ -32,11 +31,9 @@ class DBRepository:
         ON CONFLICT (url)
         DO NOTHING;
         """
-
-        async with self.conn.cursor() as cursor:
+        async with conn.cursor() as cursor:
             car_dicts = [car.model_dump() for car in cars]
             await cursor.executemany(query, car_dicts)
-            await self.conn.commit()
 
 
 async def make_db_dump(database_url: str) -> None:

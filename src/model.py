@@ -16,8 +16,8 @@ class Car(BaseModel):
     @field_validator("odometer", mode="before")
     @classmethod
     def parse_odometer(cls, value: str) -> int:
-        num = int(value.split()[0])
-        return num * 1000
+        num = value.split()[0]
+        return 0 if num.lower() == "без" else int(num) * 1000
 
     @field_validator("phone_number", mode="before")
     @classmethod
