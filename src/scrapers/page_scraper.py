@@ -14,7 +14,6 @@ class PageScraper(BaseScraper):
         async with semaphore:
             html = await self.fetch(url)
             soup = BeautifulSoup(html, "html.parser")
-
             links = []
             for a in soup.select("a.address"):
                 link = a.get("href")
@@ -25,18 +24,24 @@ class PageScraper(BaseScraper):
         logger.info(f"Links collected from page {page}: {len(links)}")
         return links
 
-    async def get_links(self) -> list[str]:
-        max_page = await self.get_max_page()
-        semaphore = asyncio.Semaphore(5)
-
-        tasks = [self.get_links_from_page(page, semaphore) for page in range(1, max_page + 1)]
+    async def get_links_from_pages(self, start: int, end: int) -> list[str]:
+        semaphore = asyncio.Semaphore(20)
+        tasks = [
+            self.get_links_from_page(page, semaphore) for page in range(start, end)
+        ]
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        all_links = [link for page_links in results for link in page_links]
 
-        logger.info(f"Links collected from all pages: {len(all_links)}")
+        all_links = []
+        for i, result in enumerate(results, 1):
+            if isinstance(result, Exception):
+                logger.error(f"Page {i} failed with {result}")
+            if isinstance(result, list):
+                all_links.extend(result)
+
+        logger.info(f"Links collected from pages in range: [{start}, {end}]")
         return all_links
 
-    async def get_max_page(self):
+    async def get_max_page(self) -> int:
         url = f"{self.base_url}?page=1"
         html = await self.fetch(url)
         soup = BeautifulSoup(html, "html.parser")
